@@ -2,7 +2,8 @@ import {Box, FormControl, FormLabel, InputAdornment, OutlinedInput} from "@mui/m
 import React from "react";
 
 function GasMeasurementsLine() {
-    return (<Box>
+    return (
+        <Box className="measurement-line">
         <FormControl size={'small'} sx={{ m: 1 }}>
             <FormLabel required={true}>CH4</FormLabel>
             <OutlinedInput
@@ -11,6 +12,7 @@ function GasMeasurementsLine() {
                 aria-describedby="outlined-weight-helper-text"
                 inputProps={{
                     'aria-label': 'weight',
+                    maxLength: 3,
                 }}
             />
         </FormControl>
@@ -62,7 +64,8 @@ function GasMeasurementsLine() {
                 }}
             />
         </FormControl>
-    </Box>)
+    </Box>
+    )
 }
 
 export default GasMeasurementsLine;

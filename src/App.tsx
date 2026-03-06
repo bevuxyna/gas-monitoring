@@ -1,10 +1,10 @@
 import React from 'react';
-import GasMeasurementsLine from "./components/GasMeasurementsLine";
+import Form from "./components/Form/Form";
 
 function App() {
     return (
         <div className="App">
-            <GasMeasurementsLine />
+            <Form />
         </div>
     );
 }
