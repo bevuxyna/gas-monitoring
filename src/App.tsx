@@ -1,10 +1,12 @@
 import React from 'react';
-import GasMeasurementsLine from "./components/GasMeasurementsLine";
+import Form from "./components/Form/Form";
+import Header from "./components/Header/Header";
 
 function App() {
     return (
         <div className="App">
-            <GasMeasurementsLine />
+            <Header />
+            <Form />
         </div>
     );
 }
