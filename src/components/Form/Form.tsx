@@ -6,20 +6,60 @@ import { ruRU } from '@mui/x-date-pickers/locales';
 import dayjs from "dayjs";
 import GasMeasurementsLine from "../GasMeasurementsLine/GasMeasurementsLine";
 import React, { useState } from "react";
-import {Box, Button, Card, CardContent, CardHeader, FormControl, FormLabel, Grid, IconButton, InputLabel, List,
-    ListItem, ListItemSecondaryAction, ListItemText, MenuItem, OutlinedInput, Select,
+import {Box, Button, Card, CardContent, CardHeader, FormControl, FormLabel, Grid,
+    MenuItem, Select,
     TextField, Typography} from "@mui/material";
 import { gssItems, objectItems } from './constants';
 import AddIcon from '@mui/icons-material/Add';
 
 function Form() {
+    interface WellData {
+        co2: string;
+        o2: string;
+        h2s: string;
+        ch4: string;
+        pressure: string;
+        valve: string;
+        comment: string;
+    }
+
+    interface MonitoringData {
+        date: string;
+        station: string;
+        facility: string;
+        temperature: string;
+        windSpeed: string;
+        atmosphericPressure: string;
+        wells: WellData[];
+        generalComment: string;
+        files: File[];
+    }
+
     const [gss, setGss] = useState('');
-    const [formData, setFormData] = useState();
+    const [formData, setFormData] = useState<MonitoringData>({
+        date: new Date().toISOString().split('T')[0],
+        station: "",
+        facility: "",
+        temperature: "",
+        windSpeed: "",
+        atmosphericPressure: "",
+        wells: Array.from({ length: 16 }, () => ({
+            co2: "",
+            o2: "",
+            h2s: "",
+            ch4: "",
+            pressure: "",
+            valve: "",
+            comment: "",
+        })),
+        generalComment: "",
+        files: [],
+    });
 
     return (
         <div>
             <Box>
-                <Box>
+                <Box sx={{ mb: 3 }}>
                     <Card>
                         <CardHeader title="Основная информация" />
                         <CardContent>
@@ -71,7 +111,20 @@ function Form() {
                     </Card>
                 </Box>
 
-                <Box>
+                <Box sx={{ mb: 3 }}>
+                    <Card>
+                        <CardHeader title="Данные газового коллектора" />
+                        <CardContent>
+                                <Typography>До оптимизации</Typography>
+                                <GasMeasurementsLine />
+
+                                <Typography>После оптимизации оптимизации</Typography>
+                                <GasMeasurementsLine />
+                        </CardContent>
+                    </Card>
+                </Box>
+
+                <Box sx={{ mb: 3 }}>
                     <Card>
                         <CardHeader title="Данные по скважинам" />
                         <CardContent>
@@ -80,7 +133,7 @@ function Form() {
                     </Card>
                 </Box>
 
-                <Box>
+                <Box sx={{ mb: 3 }}>
                     <Card>
                         <CardContent>
                             <FormControl size={'small'} fullWidth>
