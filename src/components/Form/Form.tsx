@@ -17,6 +17,7 @@ import {FileUploadModal} from '../FileUploadModal/FileUploadModal';
 import MainCollectorTable from "../MainCollectorTable/MainCollectorTable";
 import DateInput from "../DateInput/DateInput";
 import {formatFileSize} from "../../helpers";
+import {useNotification} from "../../hooks/useNotification";
 
 interface WellData {
     co2: string;
@@ -48,6 +49,7 @@ interface MonitoringData {
 function Form() {
     const [gss, setGss] = useState('');
     const [openFileDialog, setOpenFileDialog] = useState(false);
+    const {showNotification, NotificationComponent} = useNotification();
 
     const [formData, setFormData] = useState<MonitoringData>({
         date: new Date().toISOString().split('T')[0],
@@ -87,6 +89,10 @@ function Form() {
     const handleFileDelete = (index: number) => {
         const newFiles = formData.files.filter((_, i) => i !== index);
         setFormData({...formData, files: newFiles});
+    };
+
+    const handleSave = () => {
+        showNotification('Данные успешно сохранены!', 'success');
     };
 
     return (
@@ -140,12 +146,12 @@ function Form() {
                         </Grid>
                     </Box>
 
-                    <Typography variant="h6" sx={{mb: 2}}>Данные газового коллектора</Typography>
+                    <Typography variant="h6" sx={{mb: 2, mt: 2}}>Данные газового коллектора</Typography>
                     <Box sx={{mb: 3}}>
                         <MainCollectorTable/>
                     </Box>
 
-                    <Typography variant="h6" sx={{mb: 2}}>Данные по скважинам</Typography>
+                    <Typography variant="h6" sx={{mb: 2, mt: 2}}>Данные по скважинам</Typography>
                     <Box sx={{mb: 3}}>
                         <GasMeasurementsLine/>
                     </Box>
@@ -164,12 +170,11 @@ function Form() {
                         </FormControl>
                     </Box>
 
-                    <Typography variant="h6" sx={{mb: 2}}>Документы</Typography>
+                    <Typography variant="h6" sx={{mb: 2, mt: 2}}>Документы</Typography>
                     <Box sx={{mb: 3}}>
                         <Box>
                             <Button
                                 variant="outlined"
-                                color="secondary"
                                 size="medium"
                                 startIcon={<AddIcon/>}
                                 onClick={handleOpenFileDialog}
@@ -205,22 +210,23 @@ function Form() {
                 onSave={handleAddFile}
             />
 
-            <Box sx={{display: 'flex', justifyContent: 'space-between'}}>
+            <Box sx={{display: 'flex', justifyContent: 'space-between', mt: 2}}>
                 <Button
                     variant="outlined"
                     size="large"
                     color="inherit"
-                    sx={{mr: 2}}
                 >
                     Закрыть
                 </Button>
                 <Button
                     variant="contained"
                     size="large"
-                    color="secondary"
+                    color="success"
+                    onClick={handleSave}
                 >
                     Сохранить
                 </Button>
+                {NotificationComponent}
             </Box>
         </Container>
     )
