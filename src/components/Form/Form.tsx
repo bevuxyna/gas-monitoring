@@ -1,5 +1,4 @@
 import 'dayjs/locale/ru';
-import GasMeasurementsLine from "../GasMeasurementsLine/GasMeasurementsLine";
 import React, {useState} from "react";
 import {
     Box, Button, Card, CardContent, CardHeader, Container, FormControl, FormLabel, Grid,
@@ -7,7 +6,10 @@ import {
     List,
     ListItem,
     ListItemText,
-    MenuItem, Select,
+    MenuItem, Paper, Select,
+    Table, TableBody, TableCell,
+    TableContainer,
+    TableHead, TableRow,
     TextField, Typography
 } from "@mui/material";
 import {gssItems, objectItems} from './constants';
@@ -21,6 +23,7 @@ import {useNotification} from "../../hooks/useNotification";
 
 interface WellData {
     co2: string;
+    co: string;
     o2: string;
     h2s: string;
     ch4: string;
@@ -61,6 +64,7 @@ function Form() {
         wells: Array.from({length: 16}, () => ({
             co2: "",
             o2: "",
+            co: "",
             h2s: "",
             ch4: "",
             pressure: "",
@@ -70,6 +74,12 @@ function Form() {
         generalComment: "",
         files: [],
     });
+
+    const handleWellChange = (index: number, field: keyof WellData, value: string) => {
+        const newWells = [...formData.wells];
+        newWells[index] = {...newWells[index], [field]: value};
+        setFormData({...formData, wells: newWells});
+    };
 
     const handleOpenFileDialog = () => {
         setOpenFileDialog(true);
@@ -96,8 +106,8 @@ function Form() {
     };
 
     return (
-        <Container sx={{py: 4}}>
-            <Card>
+        <Container>
+            <Card sx={{p: 2, borderRadius: 4}}>
                 <CardHeader title="Протокол мониторинга газосборной станции"/>
                 <CardContent>
                     <Typography variant="h6" sx={{mb: 2}}>Основная информация</Typography>
@@ -112,6 +122,7 @@ function Form() {
                                 <FormLabel required={true}>Объект</FormLabel>
                                 <Select
                                     value={gss}
+                                    displayEmpty
                                     sx={{minWidth: 200}}
                                 >
                                     {objectItems.map((item) => (
@@ -128,9 +139,8 @@ function Form() {
                             <FormControl size={'small'}>
                                 <FormLabel required={true}>Газосборная станция</FormLabel>
                                 <Select
-                                    labelId='gss-label'
                                     value={gss}
-                                    size='small'
+                                    displayEmpty
                                     sx={{minWidth: 200}}
                                 >
                                     {gssItems.map((item) => (
@@ -153,7 +163,105 @@ function Form() {
 
                     <Typography variant="h6" sx={{mb: 2, mt: 2}}>Данные по скважинам</Typography>
                     <Box sx={{mb: 3}}>
-                        <GasMeasurementsLine/>
+                        <TableContainer component={Paper}>
+                            <Table stickyHeader size="small">
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell>ГС</TableCell>
+                                        <TableCell>CH₄ (об.%)</TableCell>
+                                        <TableCell>CO₂ (об.%)</TableCell>
+                                        <TableCell>CO (об.%)</TableCell>
+                                        <TableCell>O₂ (об.%)</TableCell>
+                                        <TableCell>H₂S (ppm)</TableCell>
+                                        <TableCell>Давление (мбар)</TableCell>
+                                        <TableCell>Положение задвижки (%)</TableCell>
+                                        <TableCell>Комментарий</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {formData.wells.map((well, index) => (
+                                        <TableRow
+                                            key={index}
+                                        >
+                                            <TableCell sx={{fontWeight: 'bold', width: 15}}>
+                                                {index + 1}
+                                            </TableCell>
+                                            <TableCell sx={{width: 80}}>
+                                                <TextField
+                                                    size="small"
+                                                    placeholder="0.0"
+                                                    value={well.ch4}
+                                                    onChange={(e) => handleWellChange(index, "ch4", e.target.value)}
+                                                />
+                                            </TableCell>
+                                            <TableCell sx={{width: 80}}>
+                                                <TextField
+                                                    size="small"
+                                                    placeholder="0.0"
+                                                    value={well.co2}
+                                                    onChange={(e) => handleWellChange(index, "co2", e.target.value)}
+                                                />
+                                            </TableCell>
+                                            <TableCell sx={{width: 80}}>
+                                                <TextField
+                                                    size="small"
+                                                    placeholder="0.0"
+                                                    value={well.co}
+                                                    onChange={(e) => handleWellChange(index, "co", e.target.value)}
+                                                />
+                                            </TableCell>
+                                            <TableCell sx={{width: 80}}>
+                                                <TextField
+                                                    size="small"
+                                                    placeholder="0.0"
+                                                    value={well.o2}
+                                                    onChange={(e) => handleWellChange(index, "o2", e.target.value)}
+                                                />
+                                            </TableCell>
+                                            <TableCell sx={{width: 80}}>
+                                                <TextField
+                                                    size="small"
+                                                    placeholder="0.0"
+                                                    value={well.h2s}
+                                                    onChange={(e) => handleWellChange(index, "h2s", e.target.value)}
+                                                />
+                                            </TableCell>
+                                            <TableCell sx={{width: 80}}>
+                                                <TextField
+                                                    size="small"
+                                                    placeholder="0.0"
+                                                    value={well.pressure}
+                                                    onChange={(e) => handleWellChange(index, "pressure", e.target.value)}
+                                                />
+                                            </TableCell>
+                                            <TableCell sx={{width: 100}}>
+                                                <FormControl size="small" fullWidth>
+                                                    <Select
+                                                        value={well.valve}
+                                                        displayEmpty
+                                                        fullWidth
+                                                        onChange={(e) => handleWellChange(index, "valve", e.target.value)}
+                                                    >
+                                                        <MenuItem value="Открыта">Открыта</MenuItem>
+                                                        <MenuItem value="Закрыта">Закрыта</MenuItem>
+                                                        <MenuItem value="Частично">Частично</MenuItem>
+                                                    </Select>
+                                                </FormControl>
+                                            </TableCell>
+                                            <TableCell>
+                                                <TextField
+                                                    size="small"
+                                                    placeholder="Комментарий"
+                                                    value={well.comment}
+                                                    fullWidth
+                                                    onChange={(e) => handleWellChange(index, "comment", e.target.value)}
+                                                />
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
                     </Box>
 
                     <Box sx={{mb: 3}}>
@@ -201,6 +309,25 @@ function Form() {
                             ))}
                         </List>
                     </Box>
+
+                    <Box sx={{display: 'flex', justifyContent: 'space-between', mt: 2}}>
+                        <Button
+                            variant="outlined"
+                            size="large"
+                            color="inherit"
+                        >
+                            Закрыть
+                        </Button>
+                        <Button
+                            variant="contained"
+                            size="large"
+                            color="success"
+                            onClick={handleSave}
+                        >
+                            Сохранить
+                        </Button>
+                        {NotificationComponent}
+                    </Box>
                 </CardContent>
             </Card>
 
@@ -209,25 +336,6 @@ function Form() {
                 onClose={handleCloseFileDialog}
                 onSave={handleAddFile}
             />
-
-            <Box sx={{display: 'flex', justifyContent: 'space-between', mt: 2}}>
-                <Button
-                    variant="outlined"
-                    size="large"
-                    color="inherit"
-                >
-                    Закрыть
-                </Button>
-                <Button
-                    variant="contained"
-                    size="large"
-                    color="success"
-                    onClick={handleSave}
-                >
-                    Сохранить
-                </Button>
-                {NotificationComponent}
-            </Box>
         </Container>
     )
 }

@@ -16,7 +16,6 @@ export const componentsTheme = {
                 root: {
                     color: '#19213d',
                     fontSize: 14,
-                    fontWeight: 500,
                     minHeight: 26
                 },
                 asterisk: {
