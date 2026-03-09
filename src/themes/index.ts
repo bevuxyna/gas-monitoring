@@ -1,21 +1,12 @@
 import { createTheme } from '@mui/material/styles';
 
-declare module '@mui/material/Button' {
-    interface ButtonPropsVariantOverrides {
-        primary: true;
-        secondary: true;
-        danger: true;
-        outline: true;
-    }
-}
-
 export const theme = createTheme({
     palette: {
         primary: {
             main: '#333b4d',
         },
         secondary: {
-            main: '#203bc5',
+            main: '#26627c',
         },
     },
 
@@ -34,9 +25,19 @@ export const theme = createTheme({
         MuiFormLabel: {
             styleOverrides: {
                 root: {
-                    color: '#333b4d'
+                    color: '#333b4d',
+                },
+                asterisk: {
+                    color: '#ff0000',
+                },
+            }
+        },
+        MuiInputBase: {
+            styleOverrides: {
+                root: {
+                    borderRadius: '6px',
                 }
             }
-        }
+        },
     },
 });

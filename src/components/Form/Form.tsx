@@ -1,9 +1,4 @@
-import {DatePicker} from '@mui/x-date-pickers/DatePicker';
-import {LocalizationProvider} from '@mui/x-date-pickers/LocalizationProvider';
-import {AdapterDayjs} from '@mui/x-date-pickers/AdapterDayjs';
 import 'dayjs/locale/ru';
-import {ruRU} from '@mui/x-date-pickers/locales';
-import dayjs from "dayjs";
 import GasMeasurementsLine from "../GasMeasurementsLine/GasMeasurementsLine";
 import React, {useState} from "react";
 import {
@@ -12,13 +7,16 @@ import {
     List,
     ListItem,
     ListItemText,
-    MenuItem, Select, TableBody, TableCell, TableContainer, TableHead, TableRow,
+    MenuItem, Select,
     TextField, Typography
 } from "@mui/material";
 import {gssItems, objectItems} from './constants';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {FileUploadModal} from '../FileUploadModal/FileUploadModal';
+import MainCollectorTable from "../MainCollectorTable/MainCollectorTable";
+import DateInput from "../DateInput/DateInput";
+import {formatFileSize} from "../../helpers";
 
 interface WellData {
     co2: string;
@@ -96,15 +94,29 @@ function Form() {
             <Card>
                 <CardHeader title="Протокол мониторинга газосборной станции"/>
                 <CardContent>
-                    <Typography>Основная информация</Typography>
+                    <Typography variant="h6" sx={{mb: 2}}>Основная информация</Typography>
                     <Box sx={{mb: 3}}>
                         <Grid container spacing={3}>
                             <FormControl size={'small'}>
                                 <FormLabel required={true}>Дата проведения измерения</FormLabel>
-                                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="ru"
-                                                      localeText={ruRU.components.MuiLocalizationProvider.defaultProps.localeText}>
-                                    <DatePicker defaultValue={dayjs(new Date())} disableFuture={true}/>
-                                </LocalizationProvider>
+                                <DateInput/>
+                            </FormControl>
+
+                            <FormControl size={'small'}>
+                                <FormLabel required={true}>Объект</FormLabel>
+                                <Select
+                                    value={gss}
+                                    sx={{minWidth: 200}}
+                                >
+                                    {objectItems.map((item) => (
+                                        <MenuItem
+                                            key={item.valueCode}
+                                            value={item.valueCode}
+                                        >
+                                            {item.title}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
                             </FormControl>
 
                             <FormControl size={'small'}>
@@ -125,187 +137,15 @@ function Form() {
                                     ))}
                                 </Select>
                             </FormControl>
-
-                            <FormControl size={'small'}>
-                                <FormLabel required={true}>Объект</FormLabel>
-                                <Select
-                                    value={gss}
-                                    sx={{minWidth: 200}}
-                                >
-                                    {objectItems.map((item) => (
-                                        <MenuItem
-                                            key={item.valueCode}
-                                            value={item.valueCode}
-                                        >
-                                            {item.title}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
                         </Grid>
                     </Box>
 
-                    <Typography>Данные газового коллектора</Typography>
+                    <Typography variant="h6" sx={{mb: 2}}>Данные газового коллектора</Typography>
                     <Box sx={{mb: 3}}>
-                        <TableContainer>
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell></TableCell>
-                                    <TableCell>
-                                        CH<sub>4</sub>, об.%
-                                    </TableCell>
-                                    <TableCell>
-                                        CO<sub>2</sub>, об.%
-                                    </TableCell>
-                                    <TableCell>
-                                        O<sub>2</sub>, об.%
-                                    </TableCell>
-                                    <TableCell>
-                                        H<sub>2</sub>S, ppm
-                                    </TableCell>
-                                    <TableCell>
-                                        CO, об.%
-                                    </TableCell>
-                                    <TableCell>
-                                        Расход, м<sup>3</sup>/ч
-                                    </TableCell>
-                                    <TableCell>
-                                        Давление, мбар
-                                    </TableCell>
-                                    <TableCell>
-                                        Положение задвижки, %
-                                    </TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                <TableRow>
-                                    <TableCell>
-                                        До оптимизации
-                                    </TableCell>
-                                    <TableCell>
-                                        <TextField
-                                            size="small"
-                                            placeholder="0.0"
-                                            sx={{ width: 60 }}
-                                        />
-                                    </TableCell>
-                                    <TableCell>
-                                        <TextField
-                                            size="small"
-                                            placeholder="0.0"
-                                            sx={{ width: 60 }}
-                                        />
-                                    </TableCell>
-                                    <TableCell>
-                                        <TextField
-                                            size="small"
-                                            placeholder="0.0"
-                                            sx={{ width: 60 }}
-                                        />
-                                    </TableCell>
-                                    <TableCell>
-                                        <TextField
-                                            size="small"
-                                            placeholder="0.0"
-                                            sx={{ width: 60 }}
-                                        />
-                                    </TableCell>
-                                    <TableCell>
-                                        <TextField
-                                            size="small"
-                                            placeholder="0.0"
-                                            sx={{ width: 60 }}
-                                        />
-                                    </TableCell>
-                                    <TableCell>
-                                        <TextField
-                                            size="small"
-                                            placeholder="0.0"
-                                            sx={{ width: 80 }}
-                                        />
-                                    </TableCell>
-                                    <TableCell>
-                                        <TextField
-                                            size="small"
-                                            placeholder="0.0"
-                                            sx={{ width: 80 }}
-                                        />
-                                    </TableCell>
-                                    <TableCell>
-                                        <TextField
-                                            size="small"
-                                            placeholder="0.0"
-                                            sx={{ width: 80 }}
-                                        />
-                                    </TableCell>
-                                </TableRow>
-                                <TableRow>
-                                    <TableCell>
-                                        После оптимизации
-                                    </TableCell>
-                                    <TableCell>
-                                        <TextField
-                                            size="small"
-                                            placeholder="0.0"
-                                            sx={{ width: 70 }}
-                                        />
-                                    </TableCell>
-                                    <TableCell>
-                                        <TextField
-                                            size="small"
-                                            placeholder="0.0"
-                                            sx={{ width: 70 }}
-                                        />
-                                    </TableCell>
-                                    <TableCell>
-                                        <TextField
-                                            size="small"
-                                            placeholder="0.0"
-                                            sx={{ width: 70 }}
-                                        />
-                                    </TableCell>
-                                    <TableCell>
-                                        <TextField
-                                            size="small"
-                                            placeholder="0.0"
-                                            sx={{ width: 70 }}
-                                        />
-                                    </TableCell>
-                                    <TableCell>
-                                        <TextField
-                                            size="small"
-                                            placeholder="0.0"
-                                            sx={{ width: 70 }}
-                                        />
-                                    </TableCell>
-                                    <TableCell>
-                                        <TextField
-                                            size="small"
-                                            placeholder="0.0"
-                                            sx={{ width: 85 }}
-                                        />
-                                    </TableCell>
-                                    <TableCell>
-                                        <TextField
-                                            size="small"
-                                            placeholder="0.0"
-                                            sx={{ width: 90 }}
-                                        />
-                                    </TableCell>
-                                    <TableCell>
-                                        <TextField
-                                            size="small"
-                                            placeholder="0.0"
-                                            sx={{ width: 80 }}
-                                        />
-                                    </TableCell>
-                                </TableRow>
-                            </TableBody>
-
-                        </TableContainer>
+                        <MainCollectorTable/>
                     </Box>
 
-                    <Typography>Данные по скважинам</Typography>
+                    <Typography variant="h6" sx={{mb: 2}}>Данные по скважинам</Typography>
                     <Box sx={{mb: 3}}>
                         <GasMeasurementsLine/>
                     </Box>
@@ -318,20 +158,21 @@ function Form() {
                                 rows={2}
                                 maxRows={4}
                                 fullWidth
+                                value={formData.generalComment}
+                                onChange={(e) => setFormData({...formData, generalComment: e.target.value})}
                             />
                         </FormControl>
                     </Box>
 
-                    <Typography>Документы</Typography>
+                    <Typography variant="h6" sx={{mb: 2}}>Документы</Typography>
                     <Box sx={{mb: 3}}>
                         <Box>
                             <Button
                                 variant="outlined"
-                                color="primary"
+                                color="secondary"
                                 size="medium"
                                 startIcon={<AddIcon/>}
                                 onClick={handleOpenFileDialog}
-                                sx={{textTransform: 'none'}}
                             >
                                 Добавить файл
                             </Button>
@@ -341,12 +182,13 @@ function Form() {
                                 <ListItem key={index}>
                                     <ListItemText
                                         primary={fileItem.description}
-                                        secondary={`${fileItem.file.name} (Размер: ${fileItem.file.size} байт)`}
+                                        secondary={`${fileItem.file.name} (Размер: ${formatFileSize(fileItem.file.size)})`}
                                     />
                                     <IconButton
                                         edge="end"
                                         aria-label="delete"
                                         onClick={() => handleFileDelete(index)}
+                                        size="small"
                                     >
                                         <DeleteIcon/>
                                     </IconButton>
