@@ -1,12 +1,12 @@
 import React from 'react';
-import Form from "./components/Form/Form";
 import Header from "./components/Header/Header";
+import { Outlet } from "react-router-dom";
 
 function App() {
     return (
         <div className="App">
             <Header />
-            <Form />
+            <Outlet />
         </div>
     );
 }
