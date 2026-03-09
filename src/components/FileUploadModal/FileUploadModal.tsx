@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, {useState, useRef} from "react";
 import {
     Box, Button, Dialog, DialogTitle, DialogContent, DialogActions,
     FormControl, FormLabel, TextField, Typography, IconButton
@@ -6,7 +6,8 @@ import {
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import DeleteIcon from '@mui/icons-material/Delete';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
-import { styled } from '@mui/material/styles';
+import {styled} from '@mui/material/styles';
+import {formatFileSize} from "../../helpers";
 
 interface FileWithDescription {
     file: File;
@@ -19,7 +20,7 @@ interface FileUploadModalProps {
     onSave: (fileWithDescription: FileWithDescription) => void;
 }
 
-const DropZone = styled(Box)(({ theme }) => ({
+const DropZone = styled(Box)(({theme}) => ({
     border: `2px dashed ${theme.palette.primary.main}`,
     borderRadius: theme.shape.borderRadius,
     padding: theme.spacing(2),
@@ -33,14 +34,14 @@ const DropZone = styled(Box)(({ theme }) => ({
     },
 }));
 
-const FilePreview = styled(Box)(({ theme }) => ({
+const FilePreview = styled(Box)(({theme}) => ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: theme.spacing(1.5),
 }));
 
-export const FileUploadModal: React.FC<FileUploadModalProps> = ({ open, onClose, onSave }) => {
+export const FileUploadModal: React.FC<FileUploadModalProps> = ({open, onClose, onSave}) => {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [fileDescription, setFileDescription] = useState('');
     const [isDragging, setIsDragging] = useState(false);
@@ -111,20 +112,12 @@ export const FileUploadModal: React.FC<FileUploadModalProps> = ({ open, onClose,
         fileInputRef.current?.click();
     };
 
-    const formatFileSize = (bytes: number): string => {
-        if (bytes === 0) return '0 Байт';
-        const k = 1024;
-        const sizes = ['Байт', 'КБ', 'МБ', 'ГБ'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-    };
-
     return (
         <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
             <DialogTitle>Добавление документа</DialogTitle>
             <DialogContent>
-                <Box sx={{ mt: 2 }}>
-                    <FormControl fullWidth sx={{ mb: 2 }}>
+                <Box sx={{mt: 2}}>
+                    <FormControl fullWidth sx={{mb: 2}}>
                         <FormLabel>Описание документа</FormLabel>
                         <TextField
                             value={fileDescription}
@@ -139,7 +132,7 @@ export const FileUploadModal: React.FC<FileUploadModalProps> = ({ open, onClose,
                         type="file"
                         ref={fileInputRef}
                         onChange={handleFileSelect}
-                        style={{ display: 'none' }}
+                        style={{display: 'none'}}
                     />
 
                     {!selectedFile ? (
@@ -154,23 +147,29 @@ export const FileUploadModal: React.FC<FileUploadModalProps> = ({ open, onClose,
                                 backgroundColor: isDragging ? 'action.hover' : 'background.default',
                             }}
                         >
-                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
-                                <UploadFileIcon fontSize="small" color="primary" />
+                            <Box sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: 1
+                            }}>
+                                <UploadFileIcon fontSize="small" color="primary"/>
                                 <Typography variant="body2" color="textSecondary">
                                     {isDragging ? 'Отпустите файл' : 'Перетащите файл сюда или выберите файл'}
                                 </Typography>
                             </Box>
-                            <Typography variant="caption" color="textSecondary" sx={{ mt: 0.5, display: 'block' }}>
+                            <Typography variant="caption" color="textSecondary" sx={{mt: 0.5, display: 'block'}}>
                                 Поддерживаемые форматы: PDF, JPG, PNG (до 10 МБ)
                             </Typography>
                         </DropZone>
                     ) : (
                         <Box>
                             <FilePreview>
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0 }}>
-                                    <InsertDriveFileIcon fontSize="small" color="primary" />
-                                    <Box sx={{ minWidth: 0 }}>
-                                        <Typography variant="body2" noWrap sx={{ maxWidth: '300px' }}>
+                                <Box sx={{display: 'flex', alignItems: 'center', gap: 1, minWidth: 0}}>
+                                    <InsertDriveFileIcon fontSize="small" color="primary"/>
+                                    <Box sx={{minWidth: 0}}>
+                                        <Typography variant="body2" noWrap sx={{maxWidth: '300px'}}>
                                             {selectedFile.name}
                                         </Typography>
                                         <Typography variant="caption" color="textSecondary">
@@ -182,7 +181,7 @@ export const FileUploadModal: React.FC<FileUploadModalProps> = ({ open, onClose,
                                     size="small"
                                     onClick={handleRemoveSelectedFile}
                                 >
-                                    <DeleteIcon fontSize="small" />
+                                    <DeleteIcon fontSize="small"/>
                                 </IconButton>
                             </FilePreview>
                         </Box>

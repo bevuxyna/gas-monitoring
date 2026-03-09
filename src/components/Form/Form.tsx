@@ -1,27 +1,29 @@
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import 'dayjs/locale/ru';
-import { ruRU } from '@mui/x-date-pickers/locales';
-import dayjs from "dayjs";
-import GasMeasurementsLine from "../GasMeasurementsLine/GasMeasurementsLine";
-import React, { useState } from "react";
+import React, {useState} from "react";
 import {
     Box, Button, Card, CardContent, CardHeader, Container, FormControl, FormLabel, Grid,
     IconButton,
     List,
     ListItem,
     ListItemText,
-    MenuItem, Select,
+    MenuItem, Paper, Select,
+    Table, TableBody, TableCell,
+    TableContainer,
+    TableHead, TableRow,
     TextField, Typography
 } from "@mui/material";
-import { gssItems, objectItems } from './constants';
+import {gssItems, objectItems} from './constants';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { FileUploadModal } from '../FileUploadModal/FileUploadModal';
+import {FileUploadModal} from '../FileUploadModal/FileUploadModal';
+import MainCollectorTable from "../MainCollectorTable/MainCollectorTable";
+import DateInput from "../DateInput/DateInput";
+import {formatFileSize} from "../../helpers";
+import {useNotification} from "../../hooks/useNotification";
 
 interface WellData {
     co2: string;
+    co: string;
     o2: string;
     h2s: string;
     ch4: string;
@@ -50,6 +52,7 @@ interface MonitoringData {
 function Form() {
     const [gss, setGss] = useState('');
     const [openFileDialog, setOpenFileDialog] = useState(false);
+    const {showNotification, NotificationComponent} = useNotification();
 
     const [formData, setFormData] = useState<MonitoringData>({
         date: new Date().toISOString().split('T')[0],
@@ -58,9 +61,10 @@ function Form() {
         temperature: "",
         windSpeed: "",
         atmosphericPressure: "",
-        wells: Array.from({ length: 16 }, () => ({
+        wells: Array.from({length: 16}, () => ({
             co2: "",
             o2: "",
+            co: "",
             h2s: "",
             ch4: "",
             pressure: "",
@@ -70,6 +74,12 @@ function Form() {
         generalComment: "",
         files: [],
     });
+
+    const handleWellChange = (index: number, field: keyof WellData, value: string) => {
+        const newWells = [...formData.wells];
+        newWells[index] = {...newWells[index], [field]: value};
+        setFormData({...formData, wells: newWells});
+    };
 
     const handleOpenFileDialog = () => {
         setOpenFileDialog(true);
@@ -88,52 +98,31 @@ function Form() {
 
     const handleFileDelete = (index: number) => {
         const newFiles = formData.files.filter((_, i) => i !== index);
-        setFormData({ ...formData, files: newFiles });
+        setFormData({...formData, files: newFiles});
+    };
+
+    const handleSave = () => {
+        showNotification('Данные успешно сохранены!', 'success');
     };
 
     return (
-        <Container maxWidth="xl" sx={{py: 4}}>
-            <Box>
-                <Typography variant="h4">
-                    Журнал мониторинга газосборной станции {gss}
-                </Typography>
-            </Box>
-
-            <Box sx={{ mb: 3 }}>
-                <Card>
-                    <CardHeader title="Основная информация" />
-                    <CardContent>
+        <Container>
+            <Card sx={{p: 2, borderRadius: 4}}>
+                <CardHeader title="Протокол мониторинга газосборной станции"/>
+                <CardContent>
+                    <Typography variant="h6" sx={{mb: 2}}>Основная информация</Typography>
+                    <Box sx={{mb: 3}}>
                         <Grid container spacing={3}>
                             <FormControl size={'small'}>
                                 <FormLabel required={true}>Дата проведения измерения</FormLabel>
-                                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="ru" localeText={ruRU.components.MuiLocalizationProvider.defaultProps.localeText}>
-                                    <DatePicker defaultValue={dayjs(new Date())} disableFuture={true} />
-                                </LocalizationProvider>
-                            </FormControl>
-
-                            <FormControl size={'small'}>
-                                <FormLabel required={true}>Газосборная станция</FormLabel>
-                                <Select
-                                    labelId='gss-label'
-                                    value={gss}
-                                    size='small'
-                                    sx={{minWidth: 200}}
-                                >
-                                    {gssItems.map((item) => (
-                                        <MenuItem
-                                            key={item.valueCode}
-                                            value={item.valueCode}
-                                        >
-                                            {item.title}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
+                                <DateInput/>
                             </FormControl>
 
                             <FormControl size={'small'}>
                                 <FormLabel required={true}>Объект</FormLabel>
                                 <Select
                                     value={gss}
+                                    displayEmpty
                                     sx={{minWidth: 200}}
                                 >
                                     {objectItems.map((item) => (
@@ -146,36 +135,136 @@ function Form() {
                                     ))}
                                 </Select>
                             </FormControl>
+
+                            <FormControl size={'small'}>
+                                <FormLabel required={true}>Газосборная станция</FormLabel>
+                                <Select
+                                    value={gss}
+                                    displayEmpty
+                                    sx={{minWidth: 200}}
+                                >
+                                    {gssItems.map((item) => (
+                                        <MenuItem
+                                            key={item.valueCode}
+                                            value={item.valueCode}
+                                        >
+                                            {item.title}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
                         </Grid>
-                    </CardContent>
-                </Card>
-            </Box>
+                    </Box>
 
-            <Box sx={{ mb: 3 }}>
-                <Card>
-                    <CardHeader title="Данные газового коллектора" />
-                    <CardContent>
-                        <Typography>До оптимизации</Typography>
-                        <GasMeasurementsLine />
+                    <Typography variant="h6" sx={{mb: 2, mt: 2}}>Данные газового коллектора</Typography>
+                    <Box sx={{mb: 3}}>
+                        <MainCollectorTable/>
+                    </Box>
 
-                        <Typography>После оптимизации оптимизации</Typography>
-                        <GasMeasurementsLine />
-                    </CardContent>
-                </Card>
-            </Box>
+                    <Typography variant="h6" sx={{mb: 2, mt: 2}}>Данные по скважинам</Typography>
+                    <Box sx={{mb: 3}}>
+                        <TableContainer component={Paper}>
+                            <Table stickyHeader size="small">
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell>ГС</TableCell>
+                                        <TableCell>CH₄ (об.%)</TableCell>
+                                        <TableCell>CO₂ (об.%)</TableCell>
+                                        <TableCell>CO (об.%)</TableCell>
+                                        <TableCell>O₂ (об.%)</TableCell>
+                                        <TableCell>H₂S (ppm)</TableCell>
+                                        <TableCell>Давление (мбар)</TableCell>
+                                        <TableCell>Положение задвижки (%)</TableCell>
+                                        <TableCell>Комментарий</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {formData.wells.map((well, index) => (
+                                        <TableRow
+                                            key={index}
+                                        >
+                                            <TableCell sx={{fontWeight: 'bold', width: 15}}>
+                                                {index + 1}
+                                            </TableCell>
+                                            <TableCell sx={{width: 80}}>
+                                                <TextField
+                                                    size="small"
+                                                    placeholder="0.0"
+                                                    value={well.ch4}
+                                                    onChange={(e) => handleWellChange(index, "ch4", e.target.value)}
+                                                />
+                                            </TableCell>
+                                            <TableCell sx={{width: 80}}>
+                                                <TextField
+                                                    size="small"
+                                                    placeholder="0.0"
+                                                    value={well.co2}
+                                                    onChange={(e) => handleWellChange(index, "co2", e.target.value)}
+                                                />
+                                            </TableCell>
+                                            <TableCell sx={{width: 80}}>
+                                                <TextField
+                                                    size="small"
+                                                    placeholder="0.0"
+                                                    value={well.co}
+                                                    onChange={(e) => handleWellChange(index, "co", e.target.value)}
+                                                />
+                                            </TableCell>
+                                            <TableCell sx={{width: 80}}>
+                                                <TextField
+                                                    size="small"
+                                                    placeholder="0.0"
+                                                    value={well.o2}
+                                                    onChange={(e) => handleWellChange(index, "o2", e.target.value)}
+                                                />
+                                            </TableCell>
+                                            <TableCell sx={{width: 80}}>
+                                                <TextField
+                                                    size="small"
+                                                    placeholder="0.0"
+                                                    value={well.h2s}
+                                                    onChange={(e) => handleWellChange(index, "h2s", e.target.value)}
+                                                />
+                                            </TableCell>
+                                            <TableCell sx={{width: 80}}>
+                                                <TextField
+                                                    size="small"
+                                                    placeholder="0.0"
+                                                    value={well.pressure}
+                                                    onChange={(e) => handleWellChange(index, "pressure", e.target.value)}
+                                                />
+                                            </TableCell>
+                                            <TableCell sx={{width: 100}}>
+                                                <FormControl size="small" fullWidth>
+                                                    <Select
+                                                        value={well.valve}
+                                                        displayEmpty
+                                                        fullWidth
+                                                        onChange={(e) => handleWellChange(index, "valve", e.target.value)}
+                                                    >
+                                                        <MenuItem value="Открыта">Открыта</MenuItem>
+                                                        <MenuItem value="Закрыта">Закрыта</MenuItem>
+                                                        <MenuItem value="Частично">Частично</MenuItem>
+                                                    </Select>
+                                                </FormControl>
+                                            </TableCell>
+                                            <TableCell>
+                                                <TextField
+                                                    size="small"
+                                                    placeholder="Комментарий"
+                                                    value={well.comment}
+                                                    fullWidth
+                                                    onChange={(e) => handleWellChange(index, "comment", e.target.value)}
+                                                />
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    </Box>
 
-            <Box sx={{ mb: 3 }}>
-                <Card>
-                    <CardHeader title="Данные по скважинам" />
-                    <CardContent>
-                        <GasMeasurementsLine />
-                    </CardContent>
-                </Card>
-            </Box>
-
-            <Box sx={{ mb: 3 }}>
-                <Card>
-                    <CardContent>
+                    <Box sx={{mb: 3}}>
                         <FormControl size={'small'} fullWidth>
                             <FormLabel>Общие замечания системы сбора газа</FormLabel>
                             <TextField
@@ -183,24 +272,20 @@ function Form() {
                                 rows={2}
                                 maxRows={4}
                                 fullWidth
+                                value={formData.generalComment}
+                                onChange={(e) => setFormData({...formData, generalComment: e.target.value})}
                             />
                         </FormControl>
-                    </CardContent>
-                </Card>
-            </Box>
+                    </Box>
 
-            <Box sx={{ mb: 3 }}>
-                <Card>
-                    <CardHeader title="Документы" />
-                    <CardContent>
+                    <Typography variant="h6" sx={{mb: 2, mt: 2}}>Документы</Typography>
+                    <Box sx={{mb: 3}}>
                         <Box>
                             <Button
                                 variant="outlined"
-                                color="primary"
                                 size="medium"
-                                startIcon={<AddIcon />}
+                                startIcon={<AddIcon/>}
                                 onClick={handleOpenFileDialog}
-                                sx={{ textTransform: 'none' }}
                             >
                                 Добавить файл
                             </Button>
@@ -210,44 +295,47 @@ function Form() {
                                 <ListItem key={index}>
                                     <ListItemText
                                         primary={fileItem.description}
-                                        secondary={`${fileItem.file.name} (Размер: ${fileItem.file.size} байт)`}
+                                        secondary={`${fileItem.file.name} (Размер: ${formatFileSize(fileItem.file.size)})`}
                                     />
                                     <IconButton
                                         edge="end"
                                         aria-label="delete"
                                         onClick={() => handleFileDelete(index)}
+                                        size="small"
                                     >
-                                        <DeleteIcon />
+                                        <DeleteIcon/>
                                     </IconButton>
                                 </ListItem>
                             ))}
                         </List>
-                    </CardContent>
-                </Card>
-            </Box>
+                    </Box>
+
+                    <Box sx={{display: 'flex', justifyContent: 'space-between', mt: 2}}>
+                        <Button
+                            variant="outlined"
+                            size="large"
+                            color="inherit"
+                        >
+                            Закрыть
+                        </Button>
+                        <Button
+                            variant="contained"
+                            size="large"
+                            color="success"
+                            onClick={handleSave}
+                        >
+                            Сохранить
+                        </Button>
+                        {NotificationComponent}
+                    </Box>
+                </CardContent>
+            </Card>
 
             <FileUploadModal
                 open={openFileDialog}
                 onClose={handleCloseFileDialog}
                 onSave={handleAddFile}
             />
-
-            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Button
-                    variant="outlined"
-                    size="large"
-                    color="inherit"
-                    sx={{mr: 2}}
-                >
-                    Закрыть
-                </Button>
-                <Button
-                    variant="contained"
-                    size="large"
-                >
-                    Сохранить
-                </Button>
-            </Box>
         </Container>
     )
 }

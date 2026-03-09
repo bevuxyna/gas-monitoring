@@ -7,7 +7,7 @@ function App() {
     return (
         <div className="App">
             <Header />
-            <Container>
+            <Container sx={{pt: 4, pb: 4}}>
                 <Outlet />
             </Container>
         </div>
