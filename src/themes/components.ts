@@ -75,6 +75,13 @@ export const componentsTheme = {
                     padding: '16px 24px'
                 }
             }
+        },
+        MuiPickersTextField: {
+            styleOverrides: {
+                root: {
+                    borderRadius: '12px',
+                }
+            }
         }
     },
 };
