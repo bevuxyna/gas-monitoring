@@ -31,5 +31,12 @@ export const theme = createTheme({
                 },
             },
         },
+        MuiFormLabel: {
+            styleOverrides: {
+                root: {
+                    color: '#333b4d'
+                }
+            }
+        }
     },
 });
